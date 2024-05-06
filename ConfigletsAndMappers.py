@@ -3,13 +3,21 @@ import IDMap
 
 
 class Mappers:
+    """ Has all the configlets, configlets to containers, configlets to devices mapping data.
+    Mapping info comes from the CloudVision REST API (Manually) by file,
+    and Topology info is passed from the IDMap.TopologyIDMap class
+    (Used to convert device/container keys to names)
+    API End point `GET /cvpservice/configlet/getConfigletsAndAssociatedMappers.do`
+    REST API Explorer can be used to download this data.
+    """
+
     device_map = {}
     containermapper_map = {}
     mappers = {}
     configlets = {}
 
     def __init__(self, file_path, ID_map: IDMap.TopologyIDMap) -> None:
-        # /cvpservice/configlet/getConfigletsAndAssociatedMappers.do
+        # GET /cvpservice/configlet/getConfigletsAndAssociatedMappers.do
         file = open(file_path)
         data = json.load(file)
         self.mappers = data["data"]["configletMappers"]
@@ -53,7 +61,7 @@ class Mappers:
         dict = {i: final[i] for i in myKeys}
         return dict
 
-    # Overwriting the print call for the class
+    # Formatted Print of Class data
     def __repr__(self) -> str:
         if len(self.containermapper_map) == 0 and len(self.device_map) == 0:
             return "Maps are empty"

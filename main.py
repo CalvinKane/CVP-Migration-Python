@@ -3,8 +3,9 @@ import IDMap
 import ConfigletsAndMappers
 import argparse
 
-# Warning DOES NOT HANDLE TENANT LEVEL CONFIGLETS
+# Service Account Token
 cvaas_token = ""
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-t", "--topology", help="Topology JSON from RESTAPI", required=True)
@@ -12,18 +13,22 @@ if __name__ == "__main__":
     cmd_args = parser.parse_args()
     print(cmd_args.topology, cmd_args.mappers)
 
-    # /cvpservice/provisioning/filterTopology.do?format=topology&startIndex=0&endIndex=0
+    # GET /cvpservice/provisioning/filterTopology.do?format=topology&startIndex=0&endIndex=0
+    # Filter can be used to limit down to one container including its children
+    # Only works with a container directly under tenant
     topology_id_map = IDMap.TopologyIDMap(cmd_args.topology, filter="")
 
-    # /cvpservice/configlet/getConfigletsAndAssociatedMappers.do
+    # GET /cvpservice/configlet/getConfigletsAndAssociatedMappers.do
     cm = ConfigletsAndMappers.Mappers(cmd_args.mappers, topology_id_map)
+    # Debugging or for Manual Checks
     print(cm)
 
     cvaas = cvp_api(cvaas_token, cvaas_url='www.cv-prod-us-central1-c.arista.io')
+    # noEdit is a list of strings that will be ignored when updating configs on CVaaS
     cvaas.update_configs(mappers=cm, noEdit=[])
+
+    # Warning DOES NOT HANDLE TENANT LEVEL CONFIGLETS
+    cvaas.apply_configlets(mappers=cm)
 
     # cvaas.create_container_layout(topology_id_map.containerID_map,
     #                               topology_id_map.topo["topology"]["childContainerList"])
-
-    # cm.update_configs(cvp_client)
-    # cm.apply_configlets(cvp_client)

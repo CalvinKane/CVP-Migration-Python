@@ -2,11 +2,18 @@ import json
 
 
 class TopologyIDMap:
+    """ Handles parsing and filtering of the topology.
+    Topology info comes from the CloudVision REST API (Manually),
+    Passed by file on `init`
+    API End point `GET /cvpservice/provisioning/filterTopology.do?format=topology&startIndex=0&endIndex=0`
+    REST API Explorer can be used to download this data.
+    """
+
     containerID_map = {}
     deviceID_map = {}
 
     def __init__(self, filePath, filter=None) -> None:
-        # /cvpservice/provisioning/filterTopology.do?format=topology&startIndex=0&endIndex=0
+        # GET /cvpservice/provisioning/filterTopology.do?format=topology&startIndex=0&endIndex=0
         file = open(filePath)
         self.topo = json.load(file)
         file.close
@@ -25,7 +32,7 @@ class TopologyIDMap:
                 self._parse_topology(container["childContainerList"])
 
     def _search_containers(self, dict, filter):
-        for container in dict:  # topo["topology"]["childContainerList"]:
+        for container in dict:
             if container["name"] == filter:
                 tmp = [container]
                 self._parse_topology(tmp)

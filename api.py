@@ -5,6 +5,10 @@ import ConfigletsAndMappers
 
 
 class cvp_api:
+    """
+    This Class wraps cvprac and works on the API data from CloudVision.
+    """
+
     def __init__(self, cvaas_token, cvaas_url='www.arista.io', client=None):
         if client:
             return
@@ -16,7 +20,9 @@ class cvp_api:
                                 password='', is_cvaas=True, api_token=cvaas_token)
         print(self.cvp_client.api.get_cvp_info())
 
+    # TODO Not Fully Implemented
     def create_container_layout(self, filtered, dict):
+        print(NotImplemented)
         for container in dict:  # topo["topology"]["childContainerList"]:
             # print(filtered.values())
             if filtered and container["name"] in filtered.values():
@@ -29,7 +35,11 @@ class cvp_api:
         # add container
         # raise NotImplementedError
 
-    def update_configs(self, mappers: ConfigletsAndMappers.Mappers, noEdit: list):
+    def update_configs(self, mappers: ConfigletsAndMappers.Mappers, noEdit: list = []):
+        """ Updates configlets on CloudVision, using the data set in `mappers`.
+        `noEdit` can be a list of configlet names you wish to remain untouched.
+        """
+
         # list[dict[Name, Key]]
         cvaas_configlets = self.cvp_client.api.get_configlets()
         names = []
@@ -67,7 +77,12 @@ class cvp_api:
                 cvaas_configlets = self.cvp_client.api.get_configlets()
 
     # Filter containermapper_map based on UserInput
-    def apply_configlets(self, containermapper_map):
+    def apply_configlets(self, mappers: ConfigletsAndMappers.Mappers):
+        """This gets all containers using `cvprac` and applies configlets based on data in
+        `mappers.containermapper_map`
+        """
+
+        containermapper_map = mappers.containermapper_map
         all_containers = {}
         print("Setting Up Container Dictionary")
         res = self.cvp_client.api.get_containers()
@@ -91,30 +106,3 @@ class cvp_api:
                     tmp += f"\t{conf['name']}\n"
                 print(
                     f"{container_name}: {res['data']['status'].upper()}\n{tmp}")
-
-    # def update_configsOLD(self, mappers: ConfigletsAndMappers.Mappers):
-    #     # list[dict[Name, Key]]
-    #     cvaas_configlets = self.cvp_client.api.get_configlets()
-    #     for api_configlet in mappers.configlets:
-    #         # Dont handle any configlet thats not static
-    #         if api_configlet['type'].lower() != "static":
-    #             continue
-    #         existing_config = None
-    #         for cvaas_configlet in cvaas_configlets['data']:
-    #             if api_configlet['name'] == cvaas_configlet['name']:
-    #                 existing_config = cvaas_configlet
-    #         if existing_config:
-    #             if api_configlet['config'] == existing_config['config']:
-    #                 print(f"Skipping {api_configlet['name']}... Nothing to Update")
-    #                 continue
-    #             print(f"Updating: {api_configlet['name']}")
-    #             res = self.cvp_client.api.update_configlet(
-    #                     api_configlet['config'],
-    #                     existing_config['key'],
-    #                     api_configlet['name'])
-    #             print(res)
-    #         else:
-    #             print(f"Creating: {api_configlet['name']}")
-    #             res = self.cvp_client.api.add_configlet(api_configlet['name'], api_configlet['config'])
-    #             print(res)
-    #             cvaas_configlets = self.cvp_client.api.get_configlets()
