@@ -11,6 +11,8 @@ Some current limits are
 `python 3`\
 `cpvrac`
 
+Having the devices insync on the CVP you're moving off of will help a lot.
+
 ### REST API Data from old CVP
 - https://[CVP_IP]/cvpservice/provisioning/filterTopology.do?format=topology&startIndex=0&endIndex=0
 - https://[CVP_IP]/cvpservice/configlet/getConfigletsAndAssociatedMappers.do
@@ -30,7 +32,7 @@ A service token will have to be generated for the API calls to CVaaS
 Go to `Settings > Access Control > Service Accounts` on CVaaS to generate a token.
 
 ## How To
-Once you have two API responses and a service token. The service token needs to be set in `main.py` as `cvaas_token`. The API responses (Saved as JSON files) are provided by command line args.
+Once you have two API responses and a service token. The service token needs to be set in `main.py` as `cvaas_token`. The API responses (Saved as JSON files) are provided by command line args. The URL for CVaaS may need changed as well (`cvaas_url` line 26 of `main.py`).
 
 i.e.
 `python3 main.py -t filterTopology.json -m getConfigletsAndAssociatedMappers.json`
